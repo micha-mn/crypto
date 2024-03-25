@@ -1,0 +1,23 @@
+CREATE SCHEMA `data` ;
+
+create table ravencoin (id bigint not null, refer_date DATE, value varchar(255), primary key (id)) ;
+create table ravencoin_sequence (next_val bigint) ;
+
+
+create table harmony (id bigint not null, refer_date DATE, value varchar(255), primary key (id)) ;
+create table harmony_sequence (next_val bigint) ;
+
+
+create table bitcoin (id bigint not null, refer_date DATE, value varchar(255), primary key (id)) ;
+create table bitcoin_sequence (next_val bigint) ;
+
+
+create table reef (id bigint not null, refer_date DATE, value varchar(255), primary key (id)) ;
+create table reef_sequence (next_val bigint) ;
+
+
+create table near (id bigint not null, refer_date DATE, value varchar(255), primary key (id)) ;
+create table near_sequence (next_val bigint) ;
+
+
+
