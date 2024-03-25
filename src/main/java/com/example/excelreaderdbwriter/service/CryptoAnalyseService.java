@@ -6,15 +6,18 @@ import org.springframework.transaction.annotation.Transactional;
 import com.example.dto.DataDTO;
 import com.example.excelreaderdbwriter.enums.TableNameEnum;
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.Query;
+
 import java.math.BigInteger;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import javax.persistence.Query;
-import javax.persistence.EntityManager;
-import javax.persistence.PersistenceContext;
 
 
 @Service
@@ -28,7 +31,7 @@ public class CryptoAnalyseService {
 	        String sequenceQuery = "select next_val from " + dataDTO.getTableName() + "_sequence";
             
 	        Query sequenceNativeQuery = entityManager.createNativeQuery(sequenceQuery);
-	        BigInteger nextId = (BigInteger) sequenceNativeQuery.getSingleResult();
+	        Long nextId = (Long) sequenceNativeQuery.getSingleResult();
 
 	        Long id = nextId.longValue();
 
@@ -36,8 +39,14 @@ public class CryptoAnalyseService {
 
 	        Query nativeInsertQuery = entityManager.createNativeQuery(insertQuery);
 
+	        
+	        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("d/MM/yyyy");
+
+	        //convert String to LocalDate
+	        LocalDate localDate = LocalDate.parse(dataDTO.getReferDate(), formatter);
+	        
 	        nativeInsertQuery.setParameter("id", id);
-	        nativeInsertQuery.setParameter("referDate", dataDTO.getReferDate());
+	        nativeInsertQuery.setParameter("referDate", localDate);
 	        nativeInsertQuery.setParameter("value", dataDTO.getValue());
 
 	        int rowsAffected = nativeInsertQuery.executeUpdate();
@@ -47,7 +56,7 @@ public class CryptoAnalyseService {
 	    
 	  @Transactional
 	    public void updateNextVal(String tableName) {
-	        String nativeQuery = "UPDATE " + tableName + "_sequence SET next_val = next_val + 1 WHERE id = 1";
+	        String nativeQuery = "UPDATE " + tableName + "_sequence SET next_val = next_val + 1";
 	        entityManager.createNativeQuery(nativeQuery).executeUpdate();
 	    }
 	 
