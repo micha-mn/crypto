@@ -6,16 +6,18 @@ import org.springframework.transaction.annotation.Transactional;
 import com.example.excelreaderdbwriter.dto.DataDTO;
 import com.example.excelreaderdbwriter.enums.TableNameEnum;
 
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
-import jakarta.persistence.Query;
-
+import java.math.BigInteger;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import javax.persistence.Query;
+
 import java.util.Locale;
 
 
@@ -30,7 +32,7 @@ public class CryptoAnalyseService {
 	        String sequenceQuery = "select next_val from " + dataDTO.getTableName() + "_sequence";
             
 	        Query sequenceNativeQuery = entityManager.createNativeQuery(sequenceQuery);
-	        Long nextId = (Long) sequenceNativeQuery.getSingleResult();
+	        BigInteger nextId = (BigInteger) sequenceNativeQuery.getSingleResult();
 
 	        Long id = nextId.longValue();
 
