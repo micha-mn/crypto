@@ -2,3 +2,13 @@
 target/
 .classpath
 /.settings
+*/target
+*target
+*/target/*
+*/target/classes/
+*target/classes
+*/target/*
+*/target/classes/*
+*/target/*
+*/target/**
+*/target/classes/com/example/excelreaderdbwriter/dto**
