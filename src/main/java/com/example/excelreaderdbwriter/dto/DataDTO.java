@@ -10,6 +10,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor 
 @AllArgsConstructor
 public class DataDTO {
-	String date;
-	String value;
+	private Long id;
+    private String referDate;
+    private String value;
+    private String tableName;
 }

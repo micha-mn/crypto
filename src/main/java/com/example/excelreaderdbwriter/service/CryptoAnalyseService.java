@@ -3,21 +3,20 @@ package com.example.excelreaderdbwriter.service;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.example.dto.DataDTO;
+import com.example.excelreaderdbwriter.dto.DataDTO;
 import com.example.excelreaderdbwriter.enums.TableNameEnum;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import jakarta.persistence.Query;
 
-import java.math.BigInteger;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
+import java.util.Locale;
 
 
 @Service
@@ -27,7 +26,7 @@ public class CryptoAnalyseService {
     private EntityManager entityManager;
 	 
 	 @Transactional
-	    public void insertIntoTable(DataDTO dataDTO) {
+	    public boolean insertIntoTable(DataDTO dataDTO) {
 	        String sequenceQuery = "select next_val from " + dataDTO.getTableName() + "_sequence";
             
 	        Query sequenceNativeQuery = entityManager.createNativeQuery(sequenceQuery);
@@ -40,10 +39,11 @@ public class CryptoAnalyseService {
 	        Query nativeInsertQuery = entityManager.createNativeQuery(insertQuery);
 
 	        
-	        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("d/MM/yyyy");
+	        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("EEEE, MMMM dd, yyyy h:mm:ss a", Locale.ENGLISH);
 
 	        //convert String to LocalDate
-	        LocalDate localDate = LocalDate.parse(dataDTO.getReferDate(), formatter);
+	        LocalDateTime localDate = LocalDateTime.parse(dataDTO.getReferDate(), formatter);
+	        System.out.println(localDate);
 	        
 	        nativeInsertQuery.setParameter("id", id);
 	        nativeInsertQuery.setParameter("referDate", localDate);
@@ -52,6 +52,7 @@ public class CryptoAnalyseService {
 	        int rowsAffected = nativeInsertQuery.executeUpdate();
 	        
 	        updateNextVal(dataDTO.getTableName());
+	        return true;
 	    }
 	    
 	  @Transactional
@@ -74,4 +75,46 @@ public class CryptoAnalyseService {
 	        return resultList;
 	  }
 
+	public List<DataDTO> getData(String tableName) {
+	
+		 String dataQuery = "select * from " + tableName + " order by refer_date desc";
+		    Query dataNativeQuery = entityManager.createNativeQuery(dataQuery);
+
+		    List<Object[]> resultList = dataNativeQuery.getResultList();
+		    List<DataDTO> dataDTOList = new ArrayList<>();
+
+		    for (Object[] row : resultList) {
+		        long id = ((Number) row[0]).longValue(); // Assuming the ID is a long
+		        String value = (String) row[2];
+
+		        DataDTO dataDTO =  DataDTO.builder().id(id)
+		        									.referDate(String.valueOf( row[1]))
+		        									.value(value)
+		        									.tableName(tableName)
+		        									.build();
+		        dataDTOList.add(dataDTO);
+		    }
+
+		    return dataDTOList;
+	}
+	@Transactional
+	public boolean updateData(DataDTO dataDTO) {
+		
+        String updateQuery = "update " + dataDTO.getTableName() + " set  `value` =  :value WHERE `id` = :id";
+
+        Query nativeUpdateQuery = entityManager.createNativeQuery(updateQuery);
+
+        nativeUpdateQuery.setParameter("id", dataDTO.getId());
+        nativeUpdateQuery.setParameter("value", dataDTO.getValue());
+
+        int rowsAffected = nativeUpdateQuery.executeUpdate();
+		return true;
+	}
+	@Transactional
+	public boolean deleteData(String tablename, String id) {
+		  String nativeQuery = "DELETE FROM " + tablename + " where id= "+id;
+	       entityManager.createNativeQuery(nativeQuery).executeUpdate();
+	       return true;
+	}
+	
 }
