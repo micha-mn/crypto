@@ -41,6 +41,7 @@ function submitData()
 		success: function(data) {
 
 			alert("sucess");
+			 getGridData();
 		},
 		error: function(e) {
 
